@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0 # Identificador da imagem baixada pelo docker, junto da versão
+    restart: always # Diz que ele sempre vai resetar quando for acionado
+    environment: # Variáveis de ambiente do container
+      MYSQL_DATABASE: curso
+      MYSQL_USER: aluno
+      MYSQL_PASSWORD: duque2023
+      MYSQL_ROOT_PASSWORD: duque2023
+    volumes: # Local onde os dados serão armazenados
+      - ./mysql-data:/var/lib/mysql
+    ports: # Porta que o servidor irá rodar
+      - "3306:3306"
+    networks:
+      - mynetwork
+  php:
+    build: # Realiza um build seguindo os dados abaixo
+      context: . # Pasta root do arquivo
+      dockerfile: Dockerfile #Nome do arquivo Docker
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+    depends_on: # Precisa do item para executar esse serviço
+      - db
+    networks:
+      - mynetwork
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: duque2023
+    ports:
+      - "8080:80"
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    driver: bridge
